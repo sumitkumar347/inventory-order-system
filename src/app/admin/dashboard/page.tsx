@@ -154,8 +154,8 @@ export default function AdminDashboard() {
       result = await updateProductAction(formState.id!, formState);
     }
 
-    if (result.error) {
-      showToast('error', result.error);
+    if ('error' in result) {
+      showToast('error', String(result.error));
     } else {
       showToast('success', `Product ${modalMode === 'create' ? 'created' : 'updated'} successfully!`);
       setIsModalOpen(false);
@@ -168,8 +168,8 @@ export default function AdminDashboard() {
     if (!confirm('Are you sure you want to delete this product from inventory?')) return;
     
     const result = await deleteProductAction(id);
-    if (result.error) {
-      showToast('error', result.error);
+    if ('error' in result) {
+      showToast('error', String(result.error));
     } else {
       showToast('success', 'Product deleted from catalog.');
       await reloadData();
@@ -180,8 +180,8 @@ export default function AdminDashboard() {
     if (!confirm(`Are you sure you want to set order status to ${status}?`)) return;
 
     const result = await updateOrderStatusAction(orderId, status);
-    if (result.error) {
-      showToast('error', result.error);
+    if ('error' in result) {
+      showToast('error', String(result.error));
     } else {
       showToast('success', `Order ${status.toLowerCase()} successfully!`);
       await reloadData();
@@ -219,7 +219,7 @@ export default function AdminDashboard() {
         </span>
         <span style={{ 
           fontSize: '0.65rem', 
-          fontWeight 700, 
+          fontWeight: 700, 
           textTransform: 'uppercase', 
           letterSpacing: '0.05em',
           padding: '0.1rem 0.4rem', 

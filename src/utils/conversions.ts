@@ -1,6 +1,8 @@
-import { Decimal } from 'decimal.js';
+import Decimal from 'decimal.js';
 
-Decimal.set({ precision: 20, rounding: Decimal.ROUND_HALF_UP });
+Decimal.config({ precision: 20, rounding: Decimal.ROUND_HALF_UP });
+
+type DecimalInstance = InstanceType<typeof Decimal>;
 
 export type Unit = 'g' | 'kg' | 'L' | 'mL' | 'item';
 
@@ -34,7 +36,7 @@ export function getCompatibleUnits(baseUnit: string): Unit[] {
   ) as Unit[];
 }
 
-export function getConversionFactor(fromUnit: string, toUnit: string): Decimal {
+export function getConversionFactor(fromUnit: string, toUnit: string): DecimalInstance {
   if (fromUnit === toUnit) {
     return new Decimal(1);
   }
@@ -60,21 +62,21 @@ export function getConversionFactor(fromUnit: string, toUnit: string): Decimal {
   return new Decimal(1);
 }
 
-export function convertQuantity(quantity: number | string | Decimal, fromUnit: string, toUnit: string): Decimal {
+export function convertQuantity(quantity: number | string | DecimalInstance, fromUnit: string, toUnit: string): DecimalInstance {
   const qty = new Decimal(quantity);
   const factor = getConversionFactor(fromUnit, toUnit);
   return qty.times(factor);
 }
 
 export function calculateOrderPrice(
-  orderedQuantity: number | string | Decimal,
+  orderedQuantity: number | string | DecimalInstance,
   orderedUnit: string,
   baseUnit: string,
-  basePrice: number | string | Decimal
+  basePrice: number | string | DecimalInstance
 ): {
-  conversionFactor: Decimal;
-  baseQuantity: Decimal;
-  calculatedPrice: Decimal;
+  conversionFactor: DecimalInstance;
+  baseQuantity: DecimalInstance;
+  calculatedPrice: DecimalInstance;
 } {
   const qty = new Decimal(orderedQuantity);
   const price = new Decimal(basePrice);

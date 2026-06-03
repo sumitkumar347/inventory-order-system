@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyPassword, createSessionToken, verifySessionToken } from '@/lib/auth';
 import { calculateOrderPrice, areUnitsCompatible } from '@/utils/conversions';
 import { Prisma } from '@prisma/client';
-import { Decimal } from 'decimal.js';
+import Decimal from 'decimal.js';
 
 export async function getSessionUser() {
   try {

@@ -194,8 +194,8 @@ export default function SellerPage() {
 
     const result = await placeOrderAction(orderItems);
 
-    if (result.error) {
-      setFeedback({ type: 'error', message: result.error });
+    if ('error' in result) {
+      setFeedback({ type: 'error', message: String(result.error) });
       setOrderSubmitting(false);
     } else {
       setFeedback({ type: 'success', message: `Order #${result.orderId?.substring(0, 8)} placed successfully!` });
