@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Colors */
   --bg-primary: #090b11;
   --bg-secondary: #111420;
   --glass-bg: rgba(17, 20, 32, 0.65);
@@ -24,11 +23,9 @@
   --glow-accent: rgba(99, 102, 241, 0.15);
   --glow-success: rgba(16, 185, 129, 0.15);
   
-  /* Fonts */
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
-  /* Layout */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 18px;
@@ -58,7 +55,6 @@ body {
   line-height: 1.5;
 }
 
-/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -74,7 +70,6 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 700;
@@ -91,7 +86,6 @@ a {
   text-decoration: none;
 }
 
-/* Glassmorphic Blocks */
 .glass-panel {
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -122,7 +116,6 @@ a {
   box-shadow: 0 10px 25px 0 rgba(99, 102, 241, 0.1);
 }
 
-/* Inputs and Forms */
 input, select, textarea {
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--glass-border);
@@ -151,7 +144,6 @@ label {
   margin-bottom: 0.5rem;
 }
 
-/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -218,7 +210,6 @@ label {
   border-radius: 6px;
 }
 
-/* Badges / Status Indicators */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -245,7 +236,6 @@ label {
   border: 1px solid rgba(244, 63, 94, 0.2);
 }
 
-/* Grids and Tables */
 .table-container {
   overflow-x: auto;
   border-radius: var(--radius-md);
@@ -287,14 +277,12 @@ tr:hover td {
   background: rgba(255, 255, 255, 0.01);
 }
 
-/* Main Layout Grid */
 .layout-container {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 2rem 1.5rem;
 }
 
-/* Header styling */
 .main-header {
   display: flex;
   justify-content: space-between;
@@ -325,7 +313,6 @@ tr:hover td {
   gap: 1rem;
 }
 
-/* Modal and Overlays */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -351,7 +338,6 @@ tr:hover td {
   position: relative;
 }
 
-/* Utility Layouts */
 .flex-between {
   display: flex;
   justify-content: space-between;

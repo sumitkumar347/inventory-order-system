@@ -3,7 +3,6 @@ import { PrismaNeon } from '@prisma/adapter-neon';
 import { neonConfig } from '@neondatabase/serverless';
 import ws from 'ws';
 
-// Configure the WebSocket constructor for the serverless Neon driver in Node.js
 if (typeof window === 'undefined') {
   neonConfig.webSocketConstructor = ws;
 }

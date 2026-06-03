@@ -10,14 +10,14 @@ import {
   logoutAction,
   getSessionUser
 } from './actions';
-import { getCompatibleUnits, calculateOrderPrice, DISPLAY_UNIT_NAMES } from '@/utils/conversions';
+import { getCompatibleUnits, calculateOrderPrice } from '@/utils/conversions';
 
 interface CartItem {
   productId: string;
   name: string;
   sku: string;
   baseUnit: string;
-  basePrice: string; // string representation of Decimal
+  basePrice: string;
   orderedQuantity: string;
   orderedUnit: string;
   compatibleUnits: string[];
@@ -28,24 +28,17 @@ export default function SellerPage() {
   const [userEmail, setUserEmail] = useState<string>('Seller');
   const [activeTab, setActiveTab] = useState<'order' | 'history'>('order');
   
-  // Catalog State
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   
-  // Cart State
   const [cart, setCart] = useState<CartItem[]>([]);
-  
-  // History State
   const [orders, setOrders] = useState<any[]>([]);
-  
-  // Global UX States
   const [loading, setLoading] = useState<boolean>(true);
   const [orderSubmitting, setOrderSubmitting] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Authenticate user check and load initial data
   const initPage = useCallback(async () => {
     setLoading(true);
     const session = await getSessionUser();
@@ -55,19 +48,16 @@ export default function SellerPage() {
     }
     setUserEmail(session.email);
 
-    // Fetch products
     const prodRes = await getProductsAction();
     if (prodRes.success && prodRes.products) {
       setProducts(prodRes.products);
     }
 
-    // Fetch categories
     const catRes = await getProductCategoriesAction();
     if (catRes.success && catRes.categories) {
       setCategories(catRes.categories);
     }
 
-    // Fetch orders
     const orderRes = await getOrdersAction();
     if (orderRes.success && orderRes.orders) {
       setOrders(orderRes.orders);
@@ -79,7 +69,6 @@ export default function SellerPage() {
     initPage();
   }, [initPage]);
 
-  // Handle Search and Filter changes
   useEffect(() => {
     const filterProducts = async () => {
       const res = await getProductsAction(searchQuery, selectedCategory);
@@ -87,7 +76,6 @@ export default function SellerPage() {
         setProducts(res.products);
       }
     };
-    // Debounce/run filter
     if (!loading) {
       filterProducts();
     }
@@ -107,7 +95,6 @@ export default function SellerPage() {
     }
   };
 
-  // Add to Cart
   const addToCart = (product: any) => {
     const exists = cart.find(item => item.productId === product.id);
     if (exists) {
@@ -124,7 +111,7 @@ export default function SellerPage() {
       baseUnit: product.baseUnit,
       basePrice: product.basePrice,
       orderedQuantity: '1',
-      orderedUnit: product.baseUnit, // default to base unit
+      orderedUnit: product.baseUnit,
       compatibleUnits: comps,
     };
 
@@ -133,7 +120,6 @@ export default function SellerPage() {
     setTimeout(() => setFeedback(null), 2000);
   };
 
-  // Update Cart Item
   const updateCartItem = (productId: string, field: 'quantity' | 'unit', value: string) => {
     setCart(prevCart => prevCart.map(item => {
       if (item.productId !== productId) return item;
@@ -142,7 +128,6 @@ export default function SellerPage() {
       let updatedUnit = item.orderedUnit;
 
       if (field === 'quantity') {
-        // Allow decimals and clean up input
         updatedQty = value;
       } else if (field === 'unit') {
         updatedUnit = value;
@@ -156,12 +141,10 @@ export default function SellerPage() {
     }));
   };
 
-  // Remove from Cart
   const removeFromCart = (productId: string) => {
     setCart(cart.filter(item => item.productId !== productId));
   };
 
-  // Real-time conversion price calculator helper for UI
   const getItemDetails = (item: CartItem) => {
     const qty = parseFloat(item.orderedQuantity) || 0;
     if (qty <= 0) return { baseQuantity: '0', calculatedPrice: '0.00' };
@@ -182,7 +165,6 @@ export default function SellerPage() {
     }
   };
 
-  // Total cart pricing
   const getCartTotal = () => {
     return cart.reduce((total, item) => {
       const details = getItemDetails(item);
@@ -190,11 +172,9 @@ export default function SellerPage() {
     }, 0).toFixed(2);
   };
 
-  // Place Order Submit
   const handlePlaceOrder = async () => {
     if (cart.length === 0) return;
     
-    // Check validation of inputs
     for (const item of cart) {
       const qty = parseFloat(item.orderedQuantity) || 0;
       if (qty <= 0) {
@@ -221,7 +201,6 @@ export default function SellerPage() {
       setFeedback({ type: 'success', message: `Order #${result.orderId?.substring(0, 8)} placed successfully!` });
       setCart([]);
       setOrderSubmitting(false);
-      // reload history
       await loadOrders();
       setTimeout(() => setFeedback(null), 5000);
     }
@@ -237,7 +216,6 @@ export default function SellerPage() {
 
   return (
     <div className="layout-container">
-      {/* Header */}
       <header className="main-header">
         <div className="logo-section">
           <span>PORTAL</span>
@@ -253,7 +231,6 @@ export default function SellerPage() {
         </div>
       </header>
 
-      {/* Toast Notifications */}
       {feedback && (
         <div style={{
           position: 'fixed',
@@ -274,7 +251,6 @@ export default function SellerPage() {
         </div>
       )}
 
-      {/* Tabs */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
         <button 
           onClick={() => setActiveTab('order')} 
@@ -292,7 +268,6 @@ export default function SellerPage() {
 
       {activeTab === 'order' ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '2rem' }}>
-          {/* Products Search & Catalog List */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className="glass-panel" style={{ display: 'flex', gap: '1rem', padding: '1rem', alignItems: 'center' }}>
               <div style={{ flex: 1 }}>
@@ -316,7 +291,6 @@ export default function SellerPage() {
               </div>
             </div>
 
-            {/* Catalog Grid */}
             <div className="grid-cols-2">
               {products.map((product) => {
                 const isOutOfStock = parseFloat(product.stockQuantity) <= 0;
@@ -366,7 +340,6 @@ export default function SellerPage() {
             )}
           </div>
 
-          {/* Cart & Quotation Sheet */}
           <div className="glass-panel" style={{ height: 'fit-content', position: 'sticky', top: '2rem' }}>
             <h2 style={{ fontSize: '1.4rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
               Quotation Cart
@@ -390,7 +363,7 @@ export default function SellerPage() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
                           <div>
                             <h4 style={{ fontSize: '0.95rem' }}>{item.name}</h4>
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                               Rate: ₹{parseFloat(item.basePrice).toFixed(2)} per {item.baseUnit}
                             </span>
                           </div>
@@ -403,7 +376,6 @@ export default function SellerPage() {
                           </button>
                         </div>
 
-                        {/* Input Row */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '0.5rem', marginBottom: '0.5rem' }}>
                           <div>
                             <label style={{ fontSize: '0.65rem' }}>Qty</label>
@@ -429,7 +401,6 @@ export default function SellerPage() {
                           </div>
                         </div>
 
-                        {/* Calculated Details */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)', borderTop: '1px dashed var(--glass-border)', paddingTop: '0.5rem' }}>
                           <span>
                             Converts: {details.baseQuantity} {item.baseUnit}
@@ -463,7 +434,6 @@ export default function SellerPage() {
           </div>
         </div>
       ) : (
-        /* Order History Page */
         <div className="glass-panel">
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Your Past Quotations</h2>
           {orders.length === 0 ? (

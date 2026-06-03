@@ -29,11 +29,9 @@ export default function AdminDashboard() {
   const [adminEmail, setAdminEmail] = useState<string>('Admin');
   const [activeTab, setActiveTab] = useState<'inventory' | 'orders'>('inventory');
   
-  // Data State
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   
-  // Modal / Form state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [formState, setFormState] = useState<ProductForm>({
@@ -46,12 +44,10 @@ export default function AdminDashboard() {
     stockQuantity: '',
   });
 
-  // UX States
   const [loading, setLoading] = useState(true);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Authenticate user check and load initial data
   const initPage = useCallback(async () => {
     setLoading(true);
     const session = await getSessionUser();
@@ -61,13 +57,11 @@ export default function AdminDashboard() {
     }
     setAdminEmail(session.email);
 
-    // Fetch products
     const prodRes = await getProductsAction();
     if (prodRes.success && prodRes.products) {
       setProducts(prodRes.products);
     }
 
-    // Fetch orders
     const orderRes = await getOrdersAction();
     if (orderRes.success && orderRes.orders) {
       setOrders(orderRes.orders);
@@ -102,7 +96,6 @@ export default function AdminDashboard() {
     setTimeout(() => setFeedback(null), 4000);
   };
 
-  // Open modal for Create
   const handleOpenCreate = () => {
     setFormState({
       name: '',
@@ -117,7 +110,6 @@ export default function AdminDashboard() {
     setIsModalOpen(true);
   };
 
-  // Open modal for Edit
   const handleOpenEdit = (product: any) => {
     setFormState({
       id: product.id,
@@ -133,18 +125,15 @@ export default function AdminDashboard() {
     setIsModalOpen(true);
   };
 
-  // Handle Form Input Changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormState(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle Submit Product CRUD
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitLoading(true);
 
-    // Validation
     const priceNum = parseFloat(formState.basePrice);
     const stockNum = parseFloat(formState.stockQuantity);
     if (isNaN(priceNum) || priceNum < 0) {
@@ -175,7 +164,6 @@ export default function AdminDashboard() {
     setSubmitLoading(false);
   };
 
-  // Handle Delete Product
   const handleDeleteProduct = async (id: string) => {
     if (!confirm('Are you sure you want to delete this product from inventory?')) return;
     
@@ -188,7 +176,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Handle Order Status Approval / Rejection
   const handleUpdateOrderStatus = async (orderId: string, status: 'APPROVED' | 'REJECTED') => {
     if (!confirm(`Are you sure you want to set order status to ${status}?`)) return;
 
@@ -201,27 +188,25 @@ export default function AdminDashboard() {
     }
   };
 
-  // Render stock levels with custom coloring
   const renderStockLevelBadge = (qtyStr: string, unit: string) => {
     const qty = parseFloat(qtyStr);
     let border = '1px solid rgba(16, 185, 129, 0.2)';
-    let color = '#34d399'; // Green standard
+    let color = '#34d399';
     let bg = 'rgba(16, 185, 129, 0.1)';
     let text = 'Healthy';
 
-    // Normalize check
     let relativeQty = qty;
     if (unit === 'g' || unit === 'mL') {
-      relativeQty = qty / 1000; // convert to kg/L equivalents for simple threshold
+      relativeQty = qty / 1000;
     }
 
     if (relativeQty <= 10) {
-      color = '#f87171'; // Red
+      color = '#f87171';
       border = '1px solid rgba(244, 63, 94, 0.2)';
       bg = 'rgba(244, 63, 94, 0.1)';
       text = 'Critical Low';
     } else if (relativeQty <= 100) {
-      color = '#fbbf24'; // Orange
+      color = '#fbbf24';
       border = '1px solid rgba(245, 158, 11, 0.2)';
       bg = 'rgba(245, 158, 11, 0.1)';
       text = 'Moderate';
@@ -234,7 +219,7 @@ export default function AdminDashboard() {
         </span>
         <span style={{ 
           fontSize: '0.65rem', 
-          fontWeight: 700, 
+          fontWeight 700, 
           textTransform: 'uppercase', 
           letterSpacing: '0.05em',
           padding: '0.1rem 0.4rem', 
@@ -260,7 +245,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="layout-container">
-      {/* Header */}
       <header className="main-header">
         <div className="logo-section">
           <span>CONSOLE</span>
@@ -276,7 +260,6 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      {/* Toast Notifications */}
       {feedback && (
         <div style={{
           position: 'fixed',
@@ -297,8 +280,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Admin Tabs */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <button 
             onClick={() => setActiveTab('inventory')} 
@@ -364,14 +346,12 @@ export default function AdminDashboard() {
                           <button 
                             onClick={() => handleOpenEdit(product)} 
                             className="btn btn-secondary btn-sm"
-                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}
                           >
                             Edit
                           </button>
                           <button 
                             onClick={() => handleDeleteProduct(product.id)} 
                             className="btn btn-danger btn-sm"
-                            style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}
                           >
                             Delete
                           </button>
@@ -385,7 +365,6 @@ export default function AdminDashboard() {
           )}
         </div>
       ) : (
-        /* Orders Management Queue */
         <div className="glass-panel">
           <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Received Orders & Quotations Queue</h2>
           {orders.length === 0 ? (
@@ -437,7 +416,7 @@ export default function AdminDashboard() {
                                   Ordered: <strong>{item.orderedQuantity} {item.orderedUnit}</strong>
                                 </div>
                                 <div style={{ fontSize: '0.75rem', color: 'var(--text-accent)', marginTop: '0.1rem' }}>
-                                  Scale audit: {item.orderedQuantity} × {item.conversionFactor} = <strong>{baseQty.toFixed(4)} {item.product.baseUnit}</strong> (base unit)
+                                  Scale audit: {item.orderedQuantity} × {item.conversionFactor} = <strong>{baseQty.toFixed(4)} {item.product.baseUnit}</strong>
                                 </div>
                                 <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '0.1rem' }}>
                                   Price audit: {baseQty.toFixed(4)} {item.product.baseUnit} @ ₹{parseFloat(item.unitPrice).toFixed(4)} = <strong>₹{parseFloat(item.calculatedPrice).toFixed(2)}</strong>
@@ -490,7 +469,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Modal for Product Add/Edit */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -522,7 +500,7 @@ export default function AdminDashboard() {
                     onChange={handleInputChange}
                     placeholder="e.g. RICE-BAS-001"
                     required
-                    disabled={modalMode === 'edit'} // SKU is unique and shouldn't change
+                    disabled={modalMode === 'edit'}
                   />
                 </div>
               </div>

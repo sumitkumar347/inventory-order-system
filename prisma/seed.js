@@ -5,7 +5,6 @@ const { neonConfig } = require('@neondatabase/serverless');
 const ws = require('ws');
 const bcrypt = require('bcryptjs');
 
-// Configure WebSocket for serverless Neon driver in Node.js
 neonConfig.webSocketConstructor = ws;
 
 const connectionString = process.env.DATABASE_URL;
@@ -20,7 +19,6 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('Start seeding...');
 
-  // Delete existing records to ensure idempotent seed runs
   await prisma.orderItem.deleteMany({});
   await prisma.order.deleteMany({});
   await prisma.product.deleteMany({});
@@ -28,7 +26,6 @@ async function main() {
 
   console.log('Cleared existing records.');
 
-  // Create Users
   const adminPasswordHash = await bcrypt.hash('admin123', 10);
   const sellerPasswordHash = await bcrypt.hash('seller123', 10);
 
@@ -50,7 +47,6 @@ async function main() {
 
   console.log(`Seeded users: admin (${admin.email}), seller (${seller.email})`);
 
-  // Create Products
   const productsData = [
     {
       name: 'Premium Basmati Rice',
@@ -58,8 +54,8 @@ async function main() {
       description: 'Long grain aromatic premium basmati rice.',
       category: 'Grains',
       baseUnit: 'kg',
-      basePrice: 80.0000, // INR 80 per kg
-      stockQuantity: 1500.0000, // 1500 kg
+      basePrice: 80.0000,
+      stockQuantity: 1500.0000,
     },
     {
       name: 'Sugar (Fine Grain)',
@@ -67,8 +63,8 @@ async function main() {
       description: 'Refined high-purity white sugar.',
       category: 'Pantry',
       baseUnit: 'kg',
-      basePrice: 46.5000, // INR 46.50 per kg
-      stockQuantity: 2000.0000, // 2000 kg
+      basePrice: 46.5000,
+      stockQuantity: 2000.0000,
     },
     {
       name: 'Organic Wild Honey',
@@ -76,8 +72,8 @@ async function main() {
       description: 'Pure forest organic wild honey stored in grams.',
       category: 'Pantry',
       baseUnit: 'g',
-      basePrice: 0.6500, // INR 0.65 per gram (= INR 650/kg)
-      stockQuantity: 50000.0000, // 50,000 grams (= 50 kg)
+      basePrice: 0.6500,
+      stockQuantity: 50000.0000,
     },
     {
       name: 'Refined Sunflower Oil',
@@ -85,8 +81,8 @@ async function main() {
       description: 'Healthy cooking oil high in Vitamin E.',
       category: 'Cooking Oils',
       baseUnit: 'L',
-      basePrice: 135.0000, // INR 135 per liter
-      stockQuantity: 400.0000, // 400 Liters
+      basePrice: 135.0000,
+      stockQuantity: 400.0000,
     },
     {
       name: 'Full Cream Dairy Milk',
@@ -94,8 +90,8 @@ async function main() {
       description: 'Fresh pasteurized full cream milk stored in milliliters.',
       category: 'Dairy',
       baseUnit: 'mL',
-      basePrice: 0.0760, // INR 0.076 per mL (= INR 76/L)
-      stockQuantity: 120000.0000, // 120,000 mL (= 120 Liters)
+      basePrice: 0.0760,
+      stockQuantity: 120000.0000,
     },
     {
       name: 'Steel Kitchen Chef Knife',
@@ -103,8 +99,8 @@ async function main() {
       description: '8-inch stainless steel professional chefs knife.',
       category: 'Kitchenware',
       baseUnit: 'item',
-      basePrice: 380.0000, // INR 380 per knife
-      stockQuantity: 45.0000, // 45 knives
+      basePrice: 380.0000,
+      stockQuantity: 45.0000,
     },
     {
       name: 'Microfiber Cleaning Cloth',
@@ -112,8 +108,8 @@ async function main() {
       description: 'Soft absorbent reusable microfiber cloth.',
       category: 'Household',
       baseUnit: 'item',
-      basePrice: 55.0000, // INR 55 per cloth
-      stockQuantity: 300.0000, // 300 cloths
+      basePrice: 55.0000,
+      stockQuantity: 300.0000,
     },
   ];
 

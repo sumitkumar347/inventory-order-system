@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -36,10 +33,10 @@ model Product {
   sku           String      @unique
   description   String?
   category      String
-  baseUnit      String      // 'g', 'kg', 'L', 'mL', 'item'
-  basePrice     Decimal     @db.Decimal(20, 4) // price in INR per baseUnit
-  stockQuantity Decimal     @db.Decimal(20, 4) // stock in terms of baseUnit
-  status        String      @default("active") // 'active', 'inactive'
+  baseUnit      String
+  basePrice     Decimal     @db.Decimal(20, 4)
+  stockQuantity Decimal     @db.Decimal(20, 4)
+  status        String      @default("active")
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   orderItems    OrderItem[]
@@ -49,7 +46,7 @@ model Order {
   id          String      @id @default(uuid())
   userId      String
   user        User        @relation(fields: [userId], references: [id])
-  totalAmount Decimal     @db.Decimal(20, 4) // sum of order items price in INR
+  totalAmount Decimal     @db.Decimal(20, 4)
   status      OrderStatus @default(PENDING)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -62,9 +59,9 @@ model OrderItem {
   order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId        String
   product          Product  @relation(fields: [productId], references: [id])
-  orderedQuantity  Decimal  @db.Decimal(20, 4) // qty in user's selected unit
-  orderedUnit      String   // 'g', 'kg', 'L', 'mL', 'item'
-  conversionFactor Decimal  @db.Decimal(20, 8) // factor to convert to baseUnit (baseQty = orderedQty * conversionFactor)
-  unitPrice        Decimal  @db.Decimal(20, 4) // historical basePrice of product at order time
-  calculatedPrice  Decimal  @db.Decimal(20, 4) // price for this order item in INR
+  orderedQuantity  Decimal  @db.Decimal(20, 4)
+  orderedUnit      String
+  conversionFactor Decimal  @db.Decimal(20, 8)
+  unitPrice        Decimal  @db.Decimal(20, 4)
+  calculatedPrice  Decimal  @db.Decimal(20, 4)
 }

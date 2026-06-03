@@ -7,7 +7,6 @@ import { calculateOrderPrice, areUnitsCompatible } from '@/utils/conversions';
 import { Prisma } from '@prisma/client';
 import { Decimal } from 'decimal.js';
 
-// Helper to retrieve current authenticated session
 export async function getSessionUser() {
   try {
     const cookieStore = await cookies();
@@ -19,7 +18,6 @@ export async function getSessionUser() {
   }
 }
 
-// 1. Auth Actions
 export async function loginAction(formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
@@ -50,7 +48,7 @@ export async function loginAction(formData: FormData) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: 60 * 60 * 24,
       path: '/',
     });
 
@@ -72,7 +70,6 @@ export async function logoutAction() {
   }
 }
 
-// 2. Product CRUD Actions (Admin Only)
 export async function getProductsAction(query?: string, category?: string) {
   try {
     const whereClause: Prisma.ProductWhereInput = { status: 'active' };
@@ -94,7 +91,6 @@ export async function getProductsAction(query?: string, category?: string) {
       orderBy: { name: 'asc' },
     });
 
-    // Serialize decimal values to strings for client components
     return {
       success: true,
       products: products.map(p => ({
@@ -194,7 +190,6 @@ export async function deleteProductAction(id: string) {
   }
 
   try {
-    // Soft delete to preserve order history
     await prisma.product.update({
       where: { id },
       data: { status: 'inactive' },
@@ -206,7 +201,6 @@ export async function deleteProductAction(id: string) {
   }
 }
 
-// 3. Order & Quotation Actions (Sellers Place Orders, Admins View/Approve)
 export async function placeOrderAction(items: Array<{
   productId: string;
   orderedQuantity: string;
@@ -222,7 +216,6 @@ export async function placeOrderAction(items: Array<{
   }
 
   try {
-    // We execute inside a transaction to ensure stock is checked and decremented safely
     return await prisma.$transaction(async (tx) => {
       let orderTotal = new Decimal(0);
       const itemsToCreate = [];
@@ -240,7 +233,6 @@ export async function placeOrderAction(items: Array<{
           throw new Error(`Incompatible units for product ${product.name}. Selected: ${item.orderedUnit}, Base: ${product.baseUnit}`);
         }
 
-        // Run pricing and quantity conversions
         const { conversionFactor, baseQuantity, calculatedPrice } = calculateOrderPrice(
           item.orderedQuantity,
           item.orderedUnit,
@@ -248,13 +240,11 @@ export async function placeOrderAction(items: Array<{
           product.basePrice.toString()
         );
 
-        // Verify stock availability
         const currentStock = new Decimal(product.stockQuantity.toString());
         if (baseQuantity.gt(currentStock)) {
           throw new Error(`Insufficient stock for ${product.name}. Available: ${currentStock.toString()} ${product.baseUnit}, Requested: ${baseQuantity.toString()} ${product.baseUnit}.`);
         }
 
-        // Deduct inventory
         await tx.product.update({
           where: { id: product.id },
           data: {
@@ -276,7 +266,6 @@ export async function placeOrderAction(items: Array<{
         });
       }
 
-      // Create order
       const order = await tx.order.create({
         data: {
           userId: user.id,
@@ -312,7 +301,6 @@ export async function getOrdersAction() {
   }
 
   try {
-    // If Admin, fetch all orders. If Seller, fetch only their own orders.
     const whereClause = user.role === 'ADMIN' ? {} : { userId: user.id };
 
     const orders = await prisma.order.findMany({
@@ -330,7 +318,6 @@ export async function getOrdersAction() {
       orderBy: { createdAt: 'desc' },
     });
 
-    // Serialize decimal values
     return {
       success: true,
       orders: orders.map(order => ({
@@ -372,10 +359,8 @@ export async function updateOrderStatusAction(orderId: string, status: 'APPROVED
         throw new Error(`Order is already ${order.status}. Status cannot be modified.`);
       }
 
-      // If status is updated to REJECTED, we restore the inventory
       if (status === 'REJECTED') {
         for (const item of order.items) {
-          // Calculate the base quantity that was deducted
           const baseQuantity = new Decimal(item.orderedQuantity.toString())
             .times(new Decimal(item.conversionFactor.toString()));
 
