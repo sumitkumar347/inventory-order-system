@@ -256,7 +256,7 @@ export default function SellerPage() {
           onClick={() => setActiveTab('order')} 
           className={`btn ${activeTab === 'order' ? 'btn-primary' : 'btn-secondary'}`}
         >
-          Create Quotation / Order
+          Create Quotation
         </button>
         <button 
           onClick={() => setActiveTab('history')} 
@@ -426,7 +426,7 @@ export default function SellerPage() {
                     disabled={orderSubmitting}
                     style={{ width: '100%' }}
                   >
-                    {orderSubmitting ? 'Submitting Quotation...' : 'Place Order / Quotation'}
+                    {orderSubmitting ? 'Submitting Quotation...' : 'Place Quotation'}
                   </button>
                 </div>
               </div>
