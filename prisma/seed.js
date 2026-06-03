@@ -1,7 +1,21 @@
+require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
+const { PrismaNeon } = require('@prisma/adapter-neon');
+const { neonConfig } = require('@neondatabase/serverless');
+const ws = require('ws');
 const bcrypt = require('bcryptjs');
 
-const prisma = new PrismaClient();
+// Configure WebSocket for serverless Neon driver in Node.js
+neonConfig.webSocketConstructor = ws;
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  console.error('DATABASE_URL is not set in the environment variables.');
+  process.exit(1);
+}
+
+const adapter = new PrismaNeon({ connectionString });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('Start seeding...');
