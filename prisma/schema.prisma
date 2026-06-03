@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  SELLER
+}
+
+enum OrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(SELLER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  orders       Order[]
+}
+
+model Product {
+  id            String      @id @default(uuid())
+  name          String
+  sku           String      @unique
+  description   String?
+  category      String
+  baseUnit      String      // 'g', 'kg', 'L', 'mL', 'item'
+  basePrice     Decimal     @db.Decimal(20, 4) // price in INR per baseUnit
+  stockQuantity Decimal     @db.Decimal(20, 4) // stock in terms of baseUnit
+  status        String      @default("active") // 'active', 'inactive'
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  orderItems    OrderItem[]
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  totalAmount Decimal     @db.Decimal(20, 4) // sum of order items price in INR
+  status      OrderStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id               String   @id @default(uuid())
+  orderId          String
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product  @relation(fields: [productId], references: [id])
+  orderedQuantity  Decimal  @db.Decimal(20, 4) // qty in user's selected unit
+  orderedUnit      String   // 'g', 'kg', 'L', 'mL', 'item'
+  conversionFactor Decimal  @db.Decimal(20, 8) // factor to convert to baseUnit (baseQty = orderedQty * conversionFactor)
+  unitPrice        Decimal  @db.Decimal(20, 4) // historical basePrice of product at order time
+  calculatedPrice  Decimal  @db.Decimal(20, 4) // price for this order item in INR
+}
